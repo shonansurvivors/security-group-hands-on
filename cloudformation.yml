@@ -75,3 +75,10 @@ Resources:
         - Key: Name
           Value: !Sub ${AWS::StackName}-private-subnet-2
       VpcId: !Ref VPC
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-igw
