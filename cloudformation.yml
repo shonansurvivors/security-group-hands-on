@@ -31,21 +31,6 @@ Resources:
           Value: !Sub ${AWS::StackName}-public-subnet-1
       VpcId: !Ref VPC
 
-  PublicSubnet2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone: !Select
-        - 1
-        - Fn::GetAZs: !Ref 'AWS::Region'
-      CidrBlock: !Select
-        - 1
-        - !Cidr [ !GetAtt VPC.CidrBlock, 6, 8 ]
-      MapPublicIpOnLaunch: true # Optional
-      Tags:
-        - Key: Name
-          Value: !Sub ${AWS::StackName}-public-subnet-2
-      VpcId: !Ref VPC
-
   PrivateSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -59,21 +44,6 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName}-private-subnet-1
-      VpcId: !Ref VPC
-
-  PrivateSubnet2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone: !Select
-        - 1
-        - Fn::GetAZs: !Ref 'AWS::Region'
-      CidrBlock: !Select
-        - 4
-        - !Cidr [ !GetAtt VPC.CidrBlock, 6, 8 ]
-      MapPublicIpOnLaunch: false # Optional
-      Tags:
-        - Key: Name
-          Value: !Sub ${AWS::StackName}-private-subnet-2
       VpcId: !Ref VPC
 
   InternetGateway:
