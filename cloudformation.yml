@@ -6,6 +6,15 @@ Parameters:
   VpcCidrBlock:
     Type: String
     Default: 172.18.0.0/16
+  Ec2ImageId:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+  Ec2InstanceType:
+    Type: String
+    Default: t2.micro
+  Ec2KeyName:
+    Type: String
+    Default: jaws-sg-key
 
 Resources:
   VPC:
@@ -93,3 +102,18 @@ Resources:
     Properties:
       RouteTableId: !Ref PrivateRouteTable1
       SubnetId: !Ref PrivateSubnet1
+
+  PublicEc2Instance1:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref Ec2ImageId
+      InstanceType: !Ref Ec2InstanceType
+      KeyName: !Ref Ec2KeyName
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-public-ec2-1
+      # UserData: CHANGEME # Optional
