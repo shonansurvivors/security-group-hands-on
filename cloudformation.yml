@@ -124,3 +124,18 @@ Resources:
           sudo amazon-linux-extras install nginx1 -y
           sudo echo "Hello JAWS!" | sudo tee /usr/share/nginx/html/jaws.html
           sudo systemctl start nginx
+
+  PrivateEc2Instance1:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref Ec2ImageId
+      InstanceType: !Ref Ec2InstanceType
+      KeyName: !Ref Ec2KeyName
+      SubnetId: !Ref PrivateSubnet1
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-private-ec2-1
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          eval "$(ssh-agent)"
