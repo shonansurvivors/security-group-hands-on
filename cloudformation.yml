@@ -116,4 +116,11 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName}-public-ec2-1
-      # UserData: CHANGEME # Optional
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          eval "$(ssh-agent)"
+
+          sudo amazon-linux-extras install nginx1 -y
+          sudo echo "Hello JAWS!" | sudo tee /usr/share/nginx/html/jaws.html
+          sudo systemctl start nginx
