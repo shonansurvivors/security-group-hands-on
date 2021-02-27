@@ -220,3 +220,47 @@ Resources:
           sudo amazon-linux-extras install nginx1 -y
           sudo echo "Hello JAWS!" | sudo tee /usr/share/nginx/html/jaws.html
           sudo systemctl start nginx
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${AWS::StackName}-tg # Optional
+      Port: 80 # Optional
+      Protocol: HTTP # Optional
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-tg
+      TargetType: instance # Optional
+      Targets:
+        - Id: !Ref PrivateEc2Instance1
+          Port: 80 # Optional
+        - Id: !Ref PrivateEc2Instance2
+          Port: 80 # Optional
+      VpcId: !Ref VPC # Optional
+
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      IpAddressType: ipv4
+      Name: !Sub ${AWS::StackName}-alb # Optional
+      Scheme: internet-facing # Optional
+#      SubnetMappings:
+#        - SubnetId: !Ref PublicSubnet1
+#        - SubnetId: !Ref PublicSubnet2
+      Subnets:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-alb
+      Type: application # Optional
+
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref TargetGroup # Optional
+          Type: forward
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 80
+      Protocol: HTTP
