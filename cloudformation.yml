@@ -98,6 +98,23 @@ Resources:
       InternetGatewayId: !Ref InternetGateway # Optional
       VpcId: !Ref VPC
 
+  NatGateway1EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-natgw-1-eip
+
+  NatGateway1:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGateway1EIP.AllocationId
+      SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-natgw-1
+    DependsOn: VPCGatewayAttachment
+
   PublicRouteTable1:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -148,6 +165,13 @@ Resources:
           Value: !Sub ${AWS::StackName}-private-route-table-1
       VpcId: !Ref VPC
 
+  PrivateRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway1
+      RouteTableId: !Ref PrivateRouteTable1
+
   PrivateSubnetRouteTableAssociation1:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -161,6 +185,13 @@ Resources:
         - Key: Name
           Value: !Sub ${AWS::StackName}-private-route-table-2
       VpcId: !Ref VPC
+
+  PrivateRoute2:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway1 # NatGateway2 does not exist
+      RouteTableId: !Ref PrivateRouteTable2
 
   PrivateSubnetRouteTableAssociation2:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -201,6 +232,7 @@ Resources:
           sudo amazon-linux-extras install nginx1 -y
           sudo echo "Hello JAWS!" | sudo tee /usr/share/nginx/html/jaws.html
           sudo systemctl start nginx
+    DependsOn: PrivateSubnetRouteTableAssociation1
 
   PrivateEc2Instance2:
     Type: AWS::EC2::Instance
@@ -220,6 +252,7 @@ Resources:
           sudo amazon-linux-extras install nginx1 -y
           sudo echo "Hello JAWS!" | sudo tee /usr/share/nginx/html/jaws.html
           sudo systemctl start nginx
+    DependsOn: PrivateSubnetRouteTableAssociation2
 
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
