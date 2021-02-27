@@ -55,6 +55,21 @@ Resources:
           Value: !Sub ${AWS::StackName}-private-subnet-1
       VpcId: !Ref VPC
 
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select
+        - 1
+        - Fn::GetAZs: !Ref 'AWS::Region'
+      CidrBlock: !Select
+        - 4
+        - !Cidr [ !GetAtt VPC.CidrBlock, 6, 8 ]
+      MapPublicIpOnLaunch: false # Optional
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-private-subnet-2
+      VpcId: !Ref VPC
+
   InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -103,27 +118,19 @@ Resources:
       RouteTableId: !Ref PrivateRouteTable1
       SubnetId: !Ref PrivateSubnet1
 
-  PublicEc2Instance1:
-    Type: AWS::EC2::Instance
+  PrivateRouteTable2:
+    Type: AWS::EC2::RouteTable
     Properties:
-      ImageId: !Ref Ec2ImageId
-      InstanceType: !Ref Ec2InstanceType
-      KeyName: !Ref Ec2KeyName
-      NetworkInterfaces:
-        - AssociatePublicIpAddress: true
-          DeviceIndex: 0
-          SubnetId: !Ref PublicSubnet1
       Tags:
         - Key: Name
-          Value: !Sub ${AWS::StackName}-public-ec2-1
-      UserData:
-        Fn::Base64: |
-          #!/bin/bash
-          eval "$(ssh-agent)"
+          Value: !Sub ${AWS::StackName}-private-route-table-2
+      VpcId: !Ref VPC
 
-          sudo amazon-linux-extras install nginx1 -y
-          sudo echo "Hello JAWS!" | sudo tee /usr/share/nginx/html/jaws.html
-          sudo systemctl start nginx
+  PrivateSubnetRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      SubnetId: !Ref PrivateSubnet2
 
   PrivateEc2Instance1:
     Type: AWS::EC2::Instance
@@ -135,6 +142,25 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName}-private-ec2-1
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          eval "$(ssh-agent)"
+
+          sudo amazon-linux-extras install nginx1 -y
+          sudo echo "Hello JAWS!" | sudo tee /usr/share/nginx/html/jaws.html
+          sudo systemctl start nginx
+
+  PrivateEc2Instance2:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref Ec2ImageId
+      InstanceType: !Ref Ec2InstanceType
+      KeyName: !Ref Ec2KeyName
+      SubnetId: !Ref PrivateSubnet2
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-private-ec2-2
       UserData:
         Fn::Base64: |
           #!/bin/bash
