@@ -204,7 +204,7 @@ Resources:
       SubnetId: !Ref PrivateSubnet1
       Tags:
         - Key: Name
-          Value: !Sub ${AWS::StackName}-private-ec2-1
+          Value: !Sub ${AWS::StackName}-private-ec2-a
       UserData:
         Fn::Base64: |
           #!/bin/bash
@@ -223,7 +223,7 @@ Resources:
       SubnetId: !Ref PrivateSubnet2
       Tags:
         - Key: Name
-          Value: !Sub ${AWS::StackName}-private-ec2-2
+          Value: !Sub ${AWS::StackName}-private-ec2-b
       UserData:
         Fn::Base64: |
           #!/bin/bash
