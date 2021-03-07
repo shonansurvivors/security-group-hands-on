@@ -12,9 +12,6 @@ Parameters:
   Ec2InstanceType:
     Type: String
     Default: t2.micro
-  Ec2KeyName:
-    Type: String
-    Default: jaws-sg-key
 
 Resources:
   VPC:
@@ -199,27 +196,11 @@ Resources:
       RouteTableId: !Ref PrivateRouteTable2
       SubnetId: !Ref PrivateSubnet2
 
-  PublicEc2Instance1:
-    Type: AWS::EC2::Instance
-    Properties:
-      ImageId: !Ref Ec2ImageId
-      InstanceType: !Ref Ec2InstanceType
-      KeyName: !Ref Ec2KeyName
-      SubnetId: !Ref PublicSubnet1
-      Tags:
-        - Key: Name
-          Value: !Sub ${AWS::StackName}-public-ec2-1
-      UserData:
-        Fn::Base64: |
-          #!/bin/bash
-          eval "$(ssh-agent)"
-
   PrivateEc2Instance1:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: !Ref Ec2ImageId
       InstanceType: !Ref Ec2InstanceType
-      KeyName: !Ref Ec2KeyName
       SubnetId: !Ref PrivateSubnet1
       Tags:
         - Key: Name
@@ -239,7 +220,6 @@ Resources:
     Properties:
       ImageId: !Ref Ec2ImageId
       InstanceType: !Ref Ec2InstanceType
-      KeyName: !Ref Ec2KeyName
       SubnetId: !Ref PrivateSubnet2
       Tags:
         - Key: Name
